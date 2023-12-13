@@ -1,16 +1,21 @@
-import pickle
 import string
-import streamlit as st
-import webbrowser
+import panda as pd
+import numpy as nd
+import re
+import matplotlib.pyplot as plt
+import seaborn as sns
+df =pd.read_csv('stock_data.csv')
+from sklearn.model_selection import train_test_split
+X = df.iloc[:, 0]
+Y = df.iloc[:, 1]
+X_train,X_test,Y_train,Y_test = train_test_split(X, Y, test_size = .2)
+from sklearn import feature_extraction
+vec =feature_extraction.text.TfidVectorizer(ngram_range = (1,2), analyzer='char')
+from sklearn import pipeline
+from sklearn import linear_model
+model_pip = pipeline.Pipeline([('vec', vec),('clf', linear_model.LogisticRegression()) ])
+model_pip.fit(X_train, Y_train)
+predict_val = model_pip.predict(X_test)
+from sklearn import metrics
+metrics.accuracy_score(Y_test, predict_val) *100
 
-global Lrdetect_Model
-
-LrdetectFile = open('model.pckl','rb')
-Lrdetect_Model = pickle.load(LrdetectFile)
-LrdetectFile.close()
-st.title("Language Detection Tool")
-input_test = st.text_input("provide your text input here", 'Hello my name is jay ')
-
-button_clicked = st.button("Get Language Name")
-if button_clicked:
-	st.text(Lrdetect_Model.predict([input_test]))
